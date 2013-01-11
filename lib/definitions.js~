@@ -1,0 +1,273 @@
+/** J. C. Siebeneichler, January 2013. */
+
+
+/** Generates definitions. Commands for changing context:
+.c: context;
+.d: definition;
+.f: automatic form of definition;
+.o: obsolete form of;
+.a: alternative form of;
+.g: gloss;
+.u: usex;
+.t: usex translation.
+*/
+function definitions(s) {
+	var ss = "#";
+	var state = ".c";
+	var prev_state = "";
+	var data = new Array();
+	
+	s = replace_commands(s, [".x", ".unc", ".ct", ".tr", ".int", ".dat",
+		".arc", ".fig", ".inf", ".sla"],
+		["context", "uncountable", "countable", "transitive", "intransitive",
+		"dated", "archaic", ".figurative", "informal", "slang"]);
+	
+	for (var c1 = 0; c1 < s.length; c1++) {
+		if (is_comm(s[c1]) && s[c1] != ".") {
+			ss += make_def_element(state, prev_state, data);
+			prev_state = state;
+			state = s[c1];
+			data = new Array();
+		} else {
+			data[data.length] = s[c1];
+		}
+	}
+	ss += make_def_element(state, prev_state, data);
+	return ss + "\n\n";
+}
+
+/** Generates a part of definition (context, definition, gloss, usex). */
+function make_def_element(state, prev_state, data) {
+	if (data.length == 0) return "";
+	var ss = "";
+	
+	if (state != ".t" && prev_state == ".u") ss += close_usex();
+	if (element_order(prev_state) >= element_order(state)) ss += "\n#";
+	
+	switch (state) {
+	case ".c": return ss + make_context(data);
+	case ".n": return ss + make_ngdef(data);
+	case ".d": return ss + make_def_main(prev_state, data);
+	case ".a": return ss + make_alternative(data);
+	case ".f": return ss + make_form_of(data);
+	case ".o": return ss + make_obsolete(data);
+	case ".g": return ss + make_gloss(data);
+	case ".u": return ss + make_usex(data);
+	case ".t": return ss + make_usex_trans(data);
+	}
+	return "";
+}
+
+
+function make_context(data) {
+	var ss = " {{";
+	for (var c1 = 0; c1 < data.length; c1++) {
+		ss += data[c1] + "|";
+	}
+	return ss + "lang=" + l + "}}";
+}
+
+function make_ngdef(data) {
+	var ss = " {{n-g|";
+	for (var c1 = 0; c1 < data.length; c1++) {
+		ss += (c1 > 0? " " : "") + data[c1];
+	}
+	return ss + "}}";
+}
+
+function make_def_main(prev_state, data) {
+	var ss = "";
+	var link = false;
+	if (prev_state == ".n") ss += ";";
+	for (var c1 = 0; c1 < data.length; c1++) {
+		if (data[c1] == ".") link = true;
+		else {
+			ss += " " + (link? wikify(data[c1]) : data[c1]);
+			link = false;
+		}
+	}
+	return ss;
+}
+
+function make_alternative(data) {
+	return " {{alternative form of|" + data[0] + "|lang=" + l + "}}";
+}
+
+function make_form_of(data) {
+	switch (pos) {
+	case "vf": switch (l) {
+		case "pt": return " " + make_pt_verb_form(data[0]);
+		} break;
+	case "af": switch (l) {
+		case "pt": return " " + make_pt_adj_form(data[0]);
+		} break;
+	case "nf": switch (l) {
+		case "pt": return " " + make_pt_noun_form(data[0]);
+		} break;
+	}
+	return " {{form of|" + w + "|lang=" + l + "}}";
+}
+
+function make_obsolete(data) {
+	return " {{obsolete form of|" + data[0] + "|lang=" + l + "}}";
+}
+
+function make_gloss(data) {
+	var ss = " {{gloss|";
+	for (var c1 = 0; c1 < data.length; c1++) {
+		ss += (c1 > 0? " " : "") + data[c1];
+	}
+	return ss + "}}";
+}
+
+function make_usex(data) {
+	var ss = "\n#: {{usex|";
+	for (var c1 = 0; c1 < data.length; c1++) {
+		ss += (c1 > 0? " " : "") + data[c1];
+	}
+	return ss;
+}
+
+function make_usex_trans(data) {
+	var ss = "|translation="
+	for (var c1 = 0; c1 < data.length; c1++) {
+		ss += (c1 > 0? " " : "") + data[c1];
+	}
+	return ss + close_usex();
+}
+
+function close_usex() {
+	var ss = "";
+	ss += "|lang=" + l;
+	var script = get_script(l);
+	if (script != "Latn") ss += "|sc=" + script;
+	return ss + "}}";
+}
+
+function wikify(s) {
+	var main = s, pmark1, pmark2;
+	pmark1 = s.substring(0, 1);
+	pmark2 = s.substring(s.length-1);
+	
+	if (is_pmark(pmark1)) main = main.substring(1);
+	else pmark1 = "";
+	if (is_pmark(pmark2)) main = main.substring(0, main.length-1);
+	else pmark2 = "";
+	
+	var suf3 = main.substring(main.length -3);
+	var suf2 = main.substring(main.length -2);
+	var suf1 = main.substring(main.length -1);
+	var sile; //silent e
+	
+	if (suf3 == "ies") main = main.substring(0, main.length-3) + "y|" + main;
+	else if (suf3 == "ing") {
+			sile = is_vowel(main.charAt(main.length-5));
+		main = main.substring(0, main.length-3) + (sile?"e":"") + "|" + main;
+	}
+	else if (suf2 == "ed") {
+			sile = is_vowel(main.charAt(main.length-4));
+			main = main.substring(0, main.length-2) + (sile?"e":"") + "|" + main;
+	}
+	else if (suf1 == "s") main = main.substring(0, main.length-1) + "|" + main;
+	
+	return pmark1 + "{{l|en|" + main + "}}" + pmark2;
+}
+
+/** Returns a number for ordering the elements of a definition: context gets 0,
+usex translation gets the greatest. */
+function element_order(s) {
+	switch (s) {
+	case ".c": return 0;
+	case ".n": return 1;
+	case ".d": case ".f": case ".o": case ".a": return 2;
+	case ".g": return 3;
+	case ".u": return 4;
+	case ".t": return 5;
+	}
+	return -1;
+}
+
+function make_pt_verb_form(s) {
+	var sufl = s.substring(s.length - 2, s.length);
+				
+	var suf2 = w.substring(w.length - 2, tw.length);
+	var suf1 = w.substring(w.length - 1, w.length);
+	
+	var ss = "{{pt-verb form of|" + s + "|" + sufl + "|";
+	
+	if (suf1 == "o") return ss + "indicative|present|singular|first}}";
+	if (suf1 == "a") {
+		switch (sufl) {
+		case "ar":
+			return ss + "indicative|present|singular|third}}"
+				+ "\n# {{pt-verb form of|" + s + "|ar|"
+				+ "imperative|affirmative|singular|second}}";
+		case "ir":
+		case "er":
+			return ss + "subjunctive|present|singular|first}}"
+				+ "\n# {{pt-verb form of|" + s + "|" + sufl + "|"
+				+ "subjunctive|present|singular|third}}"
+				+ "\n# {{pt-verb form of|" + s + "|" + sufl + "|"
+				+ "imperative|affirmative|singular|third}}"
+				+ "\n# {{pt-verb form of|" + s + "|" + sufl + "|"
+				+ "imperative|negative|singular|third}}";
+		}
+	}
+	if (suf1 == "e") {
+		switch (sufl) {
+		case "ar":
+			return ss + "subjunctive|present|singular|first}}"
+				+ "\n# {{pt-verb form of|" + s + "|ar|"
+				+ "subjunctive|present|singular|third}}"
+				+ "\n# {{pt-verb form of|" + s + "|ar|"
+				+ "imperative|affirmative|singular|third}}"
+				+ "\n# {{pt-verb form of|" + s + "|ar|"
+				+ "imperative|negative|singular|third}}";
+		case "ir":
+		case "er":
+			return ss + "indicative|present|singular|third}}"
+				+ "\n# {{pt-verb form of|" + s + "|" + sufl + "|"
+				+ "imperative|affirmative|singular|second}}";
+		}
+	}
+	return "";
+}
+
+function make_pt_adj_form(s) {
+	var suf5 = w.substring(w.length - 5);
+	var suf4 = w.substring(w.length - 4);
+	var suf3 = w.substring(w.length - 3);
+	var suf2 = w.substring(w.length - 2);
+	var suf1 = w.substring(w.length - 1);
+	var ss = "{{";
+	
+	if (suf5 == "inhos") ss += "form of|diminutive masculine plural|";
+	else if (suf5 == "inhas") ss += "form of|diminutive feminine plural|";
+	else if (suf4 == "inho") ss += "form of|diminutive masculine singular|";
+	else if (suf4 == "inha") ss += "form of|diminutive feminine singular|";
+	else if (suf4 == "onas") ss += "form of|augmentative feminine plural|";
+	else if (suf3 == "ona") ss += "form of|augmentative feminine singular|";
+	else if (suf3 == "ões") ss += "form of|augmentative masculine plural|";
+	else if (suf2 == "ão") ss += "form of|augmentative masculine singular|";
+	else if (suf2 == "os") ss += "masculine plural of|";
+	else if (suf2 == "as") ss += "feminine plural of|";
+	else if (suf2 == "es") ss += "plural of|";
+	else if (suf1 == "a") ss += "feminine of|";
+	else ss += "form of||";
+	return ss + s + "|lang=pt}}";
+}
+
+function make_pt_noun_form(s) {
+	var suf4 = w.substring(w.length - 4);
+	var suf3 = w.substring(w.length - 3);
+	var suf2 = w.substring(w.length - 2);
+	var suf1 = w.substring(w.length - 1);
+	var ss = "{{";
+	
+	if (suf4 == "inho" || suf4 == "inha") ss += "diminutive of|";
+	else if (suf3 == "ona" || suf2 == "ão") ss += "augmentative of|";
+	else if (suf1 == "s") ss += "plural of|";
+	else if (suf1 == "a") ss += "feminine of|";
+	else ss += "form of||";
+	return ss + s + "|lang=pt}}";
+}

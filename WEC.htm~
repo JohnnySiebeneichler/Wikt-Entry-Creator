@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+
+	<head>
+	
+		<title>Wiktionary Entry Creator</title>
+		<meta charset="UTF-8">
+		<meta name="keywords" content="Wiktionary">
+		<meta name="description" content="This script is used for the quick creation of Wiktionary entries">
+		<meta name="author" content="J. C. Siebeneichler">
+		
+		<script type="text/Javascript" src="lib/scripts.js"></script>
+		<script type="text/Javascript" src="lib/bullet_list.js"></script>
+		<script type="text/Javascript" src="lib/language_list.js"></script>
+		<script type="text/Javascript" src="lib/pronunciation.js"></script>
+		<script type="text/Javascript" src="lib/definitions.js"></script>
+		<script type="text/Javascript" src="lib/pos_and_conj.js"></script>
+		<script type="text/Javascript" src="lib/etymology.js"></script>
+		<script type="text/Javascript" src="lib/languages.js"></script>
+		<script type="text/Javascript" src="lib/semantic_rels.js"></script>
+		<script type="text/Javascript" src="lib/util.js"></script>
+		<script type="text/Javascript" src="lib/main.js"></script>
+		<script type="text/Javascript" src="lib/comma_list.js"></script>
+		<script type="text/Javascript" src="lib/alt_forms.js"></script>
+	</head>
+	
+	
+
+	<body>
+		<form>
+		<table style="border:0px;width:100%;height:500px">
+			<tr>
+
+				<td style="width:50%;height:100%">
+					<textarea style="width:100%;height:100%" id="input" onkeyup="main()"></textarea>
+				</td>
+				
+				<td style="width:50%;height:100%">
+					<textarea style="width:100%;height:100%" id="output" readonly="true"></textarea>
+				</td>
+				
+			</tr>
+		</table>
+		</form>
+	
+	
+	</body>
+</html>

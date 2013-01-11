@@ -1,0 +1,46 @@
+/** J. C. Siebeneichler, December 2012.
+Semantic rels, rel terms and see also.
+*/
+
+
+function semantic_rel(name, s) {
+	if (!s || s.length == 0) return "";
+	if (s.charAt(0) == " ") return "";
+	s = s.split(" ");
+	
+	return  "====" + name + "====\n" +
+			comma_list(s, "sense", false, "qualifier", true) +
+			"\n\n";
+}
+
+function call_each_semantic_rel(s) {
+	s = s.split(" \\ ");
+	
+	var ss = "";
+
+	ss += semantic_rel("Synonyms", s[0]);
+	ss += semantic_rel("Antonyms", s[1]);
+	ss += semantic_rel("Hypernyms", s[2]);
+	ss += semantic_rel("Hyponyms", s[3]);
+	ss += semantic_rel("Holonyms", s[4]);
+	ss += semantic_rel("Meronyms", s[5]);
+	ss += semantic_rel("Coordinate terms", s[6]);
+	
+	return ss;
+}
+
+function derived_terms(s) {
+	return "====Derived terms====\n" + bullet_list(s, "der-top", "der-mid", "der-bottom");
+}
+
+function descendants(s) {
+	return "====Descendants====\n" + language_list(s, "top2", "mid2", "bottom", 10);
+}
+
+function related_terms(s) {
+	return  "====Related terms====\n" + bullet_list(s, "rel-top", "rel-mid", "rel-bottom");
+}
+
+function see_also(s) {
+	return  "===See also===\n" + bullet_list(s, "rel-top|See also", "rel-mid", "rel-bottom");
+}

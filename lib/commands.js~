@@ -1,0 +1,31 @@
+/** J. C. Siebeneichler, December 2012.
+
+Commands are strings which begin with a . (full stop) in WEC input.
+
+A command struct has three values:
+	1) Command name: the string which causes the function to be called;
+	2) Function: the function which will be called;
+	3) Parametre quantity: how many parametres the function expects; -1 if every
+		string up to the next command call.
+	
+A command function has two parametres:
+	1) State: a string which represents the current state of the parse;
+	2) Parametres: an array of strings containing the parametres.
+*/
+
+
+/** Returns a command structure, with the variables:
+	cn: command name, should begin with a full stop;
+	f: what function should be called when the command is identified;
+	pq: parametre quantity; -1 for indefinite.
+*/
+function declare_command(cn, f, pq) {
+	var command;
+	command.cn = cn;
+	command.f = f;
+	command.pq = pq;
+	return command;
+}
+
+function is_command(s) {
+	return (s.charAt(0) == ".");

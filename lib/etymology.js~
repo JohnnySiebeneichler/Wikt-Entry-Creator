@@ -1,0 +1,247 @@
+/* J. C. Siebeneichler, December 2012.
+
+Commands:
+.o: Old Language;
+.m: Middle Language;
+.p1: Proto Language 1;
+.p2: Proto Language 2;
+
+.s: Suffix;
+.p: Prefix;
+.c: Compound;
+.f: Confix;
+.b: Blend;
+
+.u: Unknown;
+.ud: Disputed;
+.uu: Uncertain;
+.up: Possibly;
+
+.a: Alternative display;
+.tr: Transliteration;
+.t: Text.
+*/
+
+
+
+function etymology(s) {
+
+	var ss = "===Etymology===\n";
+	var state = ".", to_read = "";
+	var data = new Array(13);
+	var c1, c2 = 0;
+	var previous_lang = l;
+	var first = true;
+
+	s = replace_commands(s, [".o", ".m", ".p1", ".p2"], [old_language(),
+						 middle_language(), proto_language1(), proto_language2()]);
+
+	for (c1 = 0; c1 < s.length; c1++) {
+		if (s[c1] == ".a" || s[c1] == ".tr" || s[c1] == ".t") {to_read = s[c1]; continue;}
+
+		var ilc = is_lang_code(s[c1]);
+		var ic = is_comm(s[c1]);
+	
+		if (to_read == ".t") {ss += clean_word(s[c1]); to_read = ""; continue;}
+		if (to_read == ".a") {data = add_alt_display(data, s[c1]); to_read = ""; continue;}
+		if (to_read == ".tr") {data = add_translit(data, s[c1]); to_read = ""; continue;}
+		if ((ic || ilc) && !(state != "." && c2 == 0)) {
+			if (c2 >= 1 || state != ".") {
+				ss += write_step(state, data, first, false, previous_lang);
+				first = false;
+			}
+			previous_lang = data[0];
+			data = clean_data(data);
+			if (!ic) {
+				data[0] = s[c1];
+				c2 = 1;
+				state = "."
+			} else {
+				c2 = 0;
+				state = s[c1];
+			}
+			continue;
+		}
+		data[c2++] = s[c1];
+	}
+	ss += write_step(state, data, first, true, previous_lang);
+
+	return ss;
+}
+
+/** Calls the function for writing a step in the evolution chain. */
+function write_step(state, data, first, last, previous_lang) {
+	data = clean_words(data);
+	data = auto_translit(data);
+	data = remove_equal_alts(data);
+	switch (state) {
+	case ".u": case ".ud": case ".uu": case ".up": return unknown_ety(state, first, last);
+	case ".": return make_derivation(data, first, last, previous_lang);
+	case ".s": case ".p": case ".c": return makespc(state, data, first, last);
+	}
+	return "";
+}
+
+
+/** Makes a step in the etymology derivation chain in the form:
+from lang term (translit, “gloss”)*/
+function make_derivation(data, first, last, previous_lang) {
+	var ss = "";
+	ss += (first? "F" : " f") + "rom";
+	if (previous_lang != data[0]) ss += " {{etyl|" + data[0] + "|" + l + "}}";
+	if (data[1]) {
+		ss += maketerm(data[0], data[1], data[7], data[2], data[10]);
+	}
+	return ss + (last? "." : ",");
+}
+
+
+/** Makes the etymology element for an unknown/uncertain/possibly etymology.
+Type is the command. */
+function unknown_ety(type, first, last) {
+	var ss = ""
+
+	if (type == ".u" || type == ".uu") {
+		if (!first) ss += " of ";
+		ss += "{{unk.|";
+		if (!first && type == ".u") ss += "title=unknown|";
+		else if (!first && type == ".uu") ss += "title=uncertain|";
+		else if (type == ".u") ss += "title=Uncertain|";
+	}
+	else if (type == ".ud") {
+		ss += ((first)? "O" : " o");
+		ss += "rigin {{unk.|title=disputed|";
+	}
+	else if (type == ".up") {
+		ss += (first? "" : " ") + "{{unk.|title=" + ((first)? "P" : "p") + "ossibly|";
+	}
+	ss += "lang=" + l + "}}";
+	if (type == ".u" || type == ".uu") ss += " origin";
+	ss += ((last)? "." : (type == ".up"? "" : ", "));
+	if (!last && type != ".up") ss += "possibly";
+	return ss;
+}
+
+/** Makes prefixes, suffixes and compounds. */
+function makespc(type, data, first, last) {
+	var ss = "";
+	if (first) {
+		ss += "{{";
+		switch (type) {
+		case ".s": ss += "suffix";
+		case ".p": ss += "prefix";
+		case ".c": ss += "compound";
+		}
+		ss += "|" + data[1] + "|" + data[2] + "|alt1=";
+		ss += ((data[7] == "")? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1)) : data[7]);
+		if (data[8] != "") ss += "|alt2=" + data[8];
+		if (data[10] != "") ss += "|tr1=" + data[10];
+		if (data[11] != "") ss += "|tr2=" + data[11];
+		if (data[3] != "") ss += "|gloss1=" + data[3];
+		if (data[4] != "") ss += "|gloss2=" + data[4];
+		ss += "|lang=" + data[0];
+		if (get_script(data[0]) != "Latn") ss += "|sc=" + get_script(data[0] != "Latn");
+		ss += "}}"
+	} else {
+		ss += " from" + maketerm(data[0], data[1], data[7], data[3], data[10]);
+		ss += " +" + maketerm(data[0], data[2], data[8], data[4], data[11]);
+	}
+	return ss + (last? "." : ",");
+}
+
+/** Makes confix. */
+function makeconfix(type, data, first, last) {
+	var ss = "";
+	if (first) {
+		ss += "{{confix|" + data[1] + "|" + data[2] + "|" + data[3] + "|alt1=";
+		ss += (data[7] == ""? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1)) : data[7]);
+		if (data[8] != "") ss += "|alt2=" + data[8];
+		if (data[9] != "") ss += "|alt3=" + data[9];
+		if (data[10] != "") ss += "|tr1=" + data[10];
+		if (data[11] != "") ss += "|tr2=" + data[11];
+		if (data[12] != "") ss += "|tr3=" + data[13];
+		if (data[4] != "") ss += "|gloss1=" + data[4];
+		if (data[5] != "") ss += "|gloss2=" + data[5];
+		if (data[6] != "") ss += "|gloss3=" + data[6];
+		ss += "|lang=" + data[0];
+		if (get_script(data[0] != "Latn")) ss += "|sc=" + get_script(data[0] != "Latn");
+		ss += "}}"
+	} else {
+		ss += " "   + maketerm(data[0], data[1], data[7], data[4], data[10]);
+		ss += " + " + maketerm(data[0], data[2], data[8], data[5], data[11]);
+		ss += " + " + maketerm(data[0], data[3], data[9], data[6], data[12]);
+	}
+	return ss + (last? "." : ",");
+}
+
+/** Makes a {{term}} or {{recons}} function. */
+function maketerm(lang, term, alt, gloss, tr) {
+	if (!term) term = "";
+	if (!alt) alt = "";
+	if (!gloss) gloss = "";
+	if (!tr) tr = "";
+	
+	var ss = "";
+	ss += " {{" + term_or_recons(lang) + "|" + term;
+	if (alt != "" || gloss != "") ss += "|" + (alt == term? "" : alt);
+	if (gloss != "") ss += "|" + gloss;
+	ss += "|lang=" + lang;
+	if (tr != "") ss += "|tr=" + tr;
+	if (get_script(lang) != "Latn") ss += "|sc=" + get_script(lang);
+	return ss + "}}";
+}
+
+function clean_data(data) {
+	for (var c1 = 0; c1 < data.length; c1++) data[c1] = "";
+	return data;
+}
+
+function add_translit(data, val) {
+	if (data[10] == "") data[10] = val;
+	else if (data[11] == "") data[11] = val;
+	else if (data[12] == "") data[12] = val;
+	return data;
+}
+
+function add_alt_display(data, val) {
+	if (data[7] == "") data[7] = val;
+	else if (data[8] == "") data[8] = val;
+	else if (data[9] == "") data[9] = val;
+	return data;
+}
+
+function remove_equal_alts(data) {
+	if (data[7] == data[1]) data[7] = "";
+	if (data[8] == data[2]) data[8] = "";
+	if (data[9] == data[3]) data[9] = "";
+	return data;
+}
+
+/** Return recons for Appendix-only languages, otherwise returns term. */
+function term_or_recons(lang) {
+	if (lang.charAt(2) == "." || lang.sub(4) == "pro") return "recons";
+	return "term";
+}
+
+/** Automatically transliterates entries and sets macrons correctly. */
+function auto_translit(data) {
+	var aux;
+	if (macronised_alts(data[0])) {
+		if (data[1] != "") {
+			aux = data[1];
+			data[1] = demacronise(aux);
+			if (!data[7]) data[7] = macronise(aux);
+		}
+		if (data[2] != "") {
+			aux = data[2];
+			data[2] = demacronise(aux);
+			if (!data[8]) data[8] = macronise(aux);
+		}
+		if (data[3] != "") {
+			aux = data[3];
+			data[3] = demacronise(aux);
+			if (!data[9]) data[9] = macronise(aux);
+		}
+	}
+	return data;
+}
