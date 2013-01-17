@@ -4,7 +4,7 @@
 
 /*
 Returns a list which has many lines, each with a title item and several
-smaller items, and possibly another item at the end.
+linked items, and possibly another item at the end.
 Examples: alternative forms, synonyms.
 
 	values: the string array from the input;

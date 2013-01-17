@@ -10,7 +10,7 @@ Commands:
 .p: Prefix;
 .c: Compound;
 .f: Confix;
-.b: Blend;
+.b: Blend;//todo
 
 .u: Unknown;
 .ud: Disputed;
@@ -57,7 +57,13 @@ function etymology(s) {
 				c2 = 1;
 				state = "."
 			} else {
-				c2 = 0;
+				if (first && (s[c1] == ".s" || s[c1] == ".p" 
+					|| s[c1] == ".c" || s[c1] == ".f")) {
+					
+					data[0] = l;
+					c2 = 1;
+				}
+				else c2 = 0;
 				state = s[c1];
 			}
 			continue;
@@ -66,7 +72,7 @@ function etymology(s) {
 	}
 	ss += write_step(state, data, first, true, previous_lang);
 
-	return ss;
+	return ss + "\n\n";
 }
 
 /** Calls the function for writing a step in the evolution chain. */
@@ -78,6 +84,7 @@ function write_step(state, data, first, last, previous_lang) {
 	case ".u": case ".ud": case ".uu": case ".up": return unknown_ety(state, first, last);
 	case ".": return make_derivation(data, first, last, previous_lang);
 	case ".s": case ".p": case ".c": return makespc(state, data, first, last);
+	case ".f": return makeconfix(state, data, first, last);
 	}
 	return "";
 }
@@ -128,12 +135,12 @@ function makespc(type, data, first, last) {
 	if (first) {
 		ss += "{{";
 		switch (type) {
-		case ".s": ss += "suffix";
-		case ".p": ss += "prefix";
-		case ".c": ss += "compound";
+		case ".s": ss += "suffix"; break;
+		case ".p": ss += "prefix"; break;
+		case ".c": ss += "compound"; break;
 		}
 		ss += "|" + data[1] + "|" + data[2] + "|alt1=";
-		ss += ((data[7] == "")? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1)) : data[7]);
+		ss += ((data[7] == "")? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1) + (type == ".p"? "-" : "")) : data[7]);
 		if (data[8] != "") ss += "|alt2=" + data[8];
 		if (data[10] != "") ss += "|tr1=" + data[10];
 		if (data[11] != "") ss += "|tr2=" + data[11];
@@ -154,7 +161,7 @@ function makeconfix(type, data, first, last) {
 	var ss = "";
 	if (first) {
 		ss += "{{confix|" + data[1] + "|" + data[2] + "|" + data[3] + "|alt1=";
-		ss += (data[7] == ""? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1)) : data[7]);
+		ss += (data[7] == ""? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1) + "-") : data[7]);
 		if (data[8] != "") ss += "|alt2=" + data[8];
 		if (data[9] != "") ss += "|alt3=" + data[9];
 		if (data[10] != "") ss += "|tr1=" + data[10];
@@ -164,7 +171,7 @@ function makeconfix(type, data, first, last) {
 		if (data[5] != "") ss += "|gloss2=" + data[5];
 		if (data[6] != "") ss += "|gloss3=" + data[6];
 		ss += "|lang=" + data[0];
-		if (get_script(data[0] != "Latn")) ss += "|sc=" + get_script(data[0] != "Latn");
+		if (get_script(data[0]) != "Latn") ss += "|sc=" + get_script(data[0]);
 		ss += "}}"
 	} else {
 		ss += " "   + maketerm(data[0], data[1], data[7], data[4], data[10]);

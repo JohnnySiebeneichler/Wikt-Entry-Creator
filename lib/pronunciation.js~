@@ -5,7 +5,7 @@ function pronunciation(s) {
 	var ss = "===Pronunciation===\n*";
 	var accents = 0;
 	var first = true;
-	s = replace_commands(s, [".sbr", ".brz", ".prt", ".spo", ".bol", ".rp", ".usa"],
+	s = replace_commands(s, [".sbr", ".brz", ".ptg", ".spo", ".bol", ".rp", ".usa"],
 							["South Brazil", "Brazil", "Portugal", "Paulista",
 							"Bolognese", "Received Pronunciation", "General American"]);
 
@@ -61,9 +61,9 @@ function sampa_to_ipa(s) {
 	s = s.replace(/N/g, "ŋ");
 	s = s.replace(/L/g, "ʎ");
 	s = s.replace(/5/g, "ɫ");
-	s = s.replace(/4/g, "ɾ");;
-	s = s.replace(/3/g, "ɜ");;
-	s = s.replace(/@/g, "ə");;
+	s = s.replace(/4/g, "ɾ");
+	s = s.replace(/3/g, "ɜ");
+	s = s.replace(/@/g, "ə");
 	s = s.replace(/R/g, "ʁ");
 	s = s.replace(/J/g, "ɲ");
 	s = s.replace(/X/g, "χ");
@@ -78,7 +78,7 @@ function sampa_to_ipa(s) {
 	s = s.replace(/@`/g, "˞");
 	s = s.replace(/3`/g, "ɝ");
 	s = s.replace(/`/g, "˞");
-	s = s.replace(/~/g, "&#771;");
+	s = s.replace(/~/g, "̃");
 	s = s.replace(/_"/g, "&#776;");
 	s = s.replace(/_o/g, "&#798;");
 	s = s.replace(/_r/g, "&#799;");
