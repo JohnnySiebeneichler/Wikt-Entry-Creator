@@ -58,7 +58,6 @@ function get_total_bullets(values) {
 		else if (values[c1] != w) count++
 		
 	}
-	window.alert(count);
 	return count;
 }
 

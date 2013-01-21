@@ -35,7 +35,8 @@ function comma_list(values, template1, ends1, template2, ends2) {
 			ss += begin_funct(template2, ends2, t2c, c1);
 		}
 		else {
-			var last = (c1 == values.length-1);
+			values[c1] = clean_word(values[c1]);
+			var last = (c1 == values.length-1 || values[c1+1].charAt(0) == ".");
 			if (t1c > 0) {
 				t1c--;
 				ss += "|" + values[c1];
@@ -61,7 +62,11 @@ function begin_funct(template, ends, tc, gc) {
 }
 
 function end_funct(template, ends, tc, last) {
-	if (tc == 0) return "}}" + ((!last && ends)? "\n* " : " ");
+	//if (tc == 0) return "}}" + ((!last && ends)? "\n* " : " ");
+	if (tc != 0) return "";
+	var ss = "}}";
+	
+	if (tc == 0) return ("}}" + ((last || !ends)? "" : ", "));
 	return "";
 }
 

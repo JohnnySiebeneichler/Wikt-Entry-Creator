@@ -121,6 +121,7 @@ function get_head_function() {
 		case "pn": return "pt-pron";
 		case "p": return "pt-proper noun";
 		case "vf": return "pt-verb-form";
+		case "ad": return "pt-adv";
 		}
 		break;
 	case "lij": switch (pos) {
