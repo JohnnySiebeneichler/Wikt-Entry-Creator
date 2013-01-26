@@ -79,11 +79,11 @@ function sampa_to_ipa(s) {
 	s = s.replace(/3`/g, "ɝ");
 	s = s.replace(/`/g, "˞");
 	s = s.replace(/~/g, "̃");
-	s = s.replace(/_"/g, "&#776;");
-	s = s.replace(/_o/g, "&#798;");
-	s = s.replace(/_r/g, "&#799;");
-	s = s.replace(/_d/g, "&#811;");
-	s = s.replace(/_^/g, "&#816;");
+	s = s.replace(/_"/g, "̈");
+	s = s.replace(/_o/g, "̞");
+	s = s.replace(/_r/g, "̟");
+	s = s.replace(/_d/g, "̫");
+	s = s.replace(/_^/g, "̰");
 	s = s.replace(/\'/g, "ˌ");
 	s = s.replace(/"/g, "ˈ");
 	return s;
