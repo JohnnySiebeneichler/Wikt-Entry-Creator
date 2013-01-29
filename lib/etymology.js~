@@ -97,7 +97,7 @@ from lang term (translit, “gloss”). */
 function make_derivation(data, first, last, previous_lang) {
 	var ss = "";
 	ss += (first? "F" : " f") + "rom";
-	if (previous_lang != data[0]) ss += " {{etyl|" + data[0] + "|" + l + "}}";
+	if (previous_lang != data[0] && data[0] != l) ss += " {{etyl|" + data[0] + "|" + l + "}}";
 	if (data[1]) {
 		if (data[0] == "la") ss += auto_latin_lemma(data);
 		else ss += maketerm(data[0], data[1], data[7], data[2], data[10]);

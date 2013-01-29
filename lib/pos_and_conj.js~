@@ -47,10 +47,10 @@ function headline(s) {
 		ss += make_head_alt();
 		c1 = 1;
 	} else {
-		ss += "head|" + l + "|" + get_pos_name();
+		//ss += "head|" + l + "|" + get_pos_name();
 	}
 	for (; c1 < s.length; c1++) {
-		ss += "|" + clean_word(s[c1]);
+		ss += (c1 == 0? "": "|") + clean_word(s[c1]);
 	}
 	
 	return ss + "}}\n\n";
@@ -225,6 +225,10 @@ function pt_noun_parameters() {
 
 function pt_adj_parameters() {
 	var ss = "|";
+	
+	if (w.substring(w.length-3) == "vel") {
+		return ss + w.substring(0, w.length-4) + "|" + w.substring(w.length-4);
+	}
 	var suffix2 = w.substring(w.length-2);
 	if (suffix2 == "ão" || suffix2 == "il") {
 		return ss + w.substring(0, w.length-2) + "|" + suffix2;
