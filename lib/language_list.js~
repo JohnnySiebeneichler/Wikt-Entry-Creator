@@ -26,7 +26,7 @@ function language_list(values, templatetop, templatemid, templatebot,
 	
 	if (has) ss += "{{" + templatetop + "}}\n";
 	for (var c1 = 0; c1 < values.length; c1++) {
-		var splits = needs_split(has, q, count);
+		var splits = needs_split_ll(has, q, count);
 		if (values[c1] == ".") {
 			qc++;
 			if (qc == 1) ss += " {{qualifier";

@@ -178,9 +178,11 @@ function get_conj_parameters() {
 
 /** Makes the head= parameter if there are spaces or hyphens in the word. */
 function make_head_alt() {
-	var head = w.replace(/\s/g, ("}} {{l|"+l+"|")).replace(/-/g, ("}}-{{l|"+l+"|"));
+	var type = has_efficient_l(l)? "/" : "|";
+	var head = w.replace(/\s/g, ("}} {{l"+type+l+"|"));
+	head = head.replace(/-/g, ("}}-{{l"+type+l+"|"));
 	if (head == w) return "";
-	return "|head={{l|" + l + "|" + head + "}}";
+	return "|head={{l" + type + l + "|" + head + "}}";
 }
 
 function get_romance_gender() {
@@ -218,6 +220,7 @@ function pt_noun_parameters() {
 	else if (suffix2 == "el") ss += w.substring(0, w.length-2) + "éis";
 	else if (suffix2 == "ão") ss += w.substring(0, w.length-2) + "ões";
 	else if (suffix1 == "l") ss += w.substring(0, w.length-1) + "is";
+	else if (suffix1 == "m") ss += w.substring(0, w.length-1) + "ns";
 	else if (is_vowel(suffix1)) ss += "s";
 	else ss += "es";
 	return ss;

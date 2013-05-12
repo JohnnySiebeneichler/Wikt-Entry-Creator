@@ -42,7 +42,9 @@ function make_def_element(state, prev_state, data) {
 	var ss = "";
 	
 	if (state != ".t" && prev_state == ".u") ss += close_usex();
-	if (element_order(prev_state) >= element_order(state)) ss += "\n#";
+	if (element_order(prev_state) >= element_order(state) && state != ".u") {
+		ss += "\n#";
+	}
 	
 	switch (state) {
 	case ".c": return ss + make_context(data);
@@ -192,19 +194,22 @@ function wikify(s) {
 			sile = is_vowel(main.charAt(main.length-4));
 			main = main.substring(0, main.length-2) + (sile?"e":"") + "|" + main;
 	}
+	else if (suf2 == "ss") {
+			main = main;
+	}
 	else if (suf1 == "s") main = main.substring(0, main.length-1) + "|" + main;
 	
-	return pmark1 + "{{l|en|" + main + "}}" + pmark2;
+	return pmark1 + "{{l/en|" + main + "}}" + pmark2;
 }
 
 function simple_wikify(s) {
-	return "{{l|en|" + s + "}}";
+	return "{{l/en|" + s + "}}";
 }
 
 function add_full_stop(data) {
 	var word = data[data.length-1];
 	var ch = word.charAt(word.length -1);
-	//if (ch != "?" && ch != "!") return ".";
+	if (ch != "?" && ch != "!") return ".";
 	return "";
 }
 
