@@ -1,11 +1,11 @@
 /** J. C. Siebeneichler, December 2012.
-Semantic rels, rel terms and see also.
+Semantic rels, descendants, rel terms and see also.
 */
 
 
 function semantic_rel(name, s) {
 	if (!s || s.length == 0) return "";
-	if (s.charAt(0) == " ") return "";
+	if (s.charAt(0) == " " || s.charAt(0) == ".") return "";
 	s = s.split(" ");
 	
 	return  "====" + name + "====\n" +

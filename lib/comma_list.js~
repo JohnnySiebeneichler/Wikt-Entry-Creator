@@ -18,7 +18,7 @@ Examples: alternative forms, synonyms.
 */
 
 function comma_list(values, template1, ends1, template2, ends2) {
-	if (values.length == 0) return "";
+	/*if (values.length == 0) return "";
 	
 	var ss = "* ";
 	var t1c = 0;	//template 1 count
@@ -55,12 +55,12 @@ function comma_list(values, template1, ends1, template2, ends2) {
 			}
 		}
 	}
-	return ss;
+	return ss;*/
 }
 
 
 function begin_funct(template, ends, tc, gc) {
-	if (tc == 1) return (((gc > 0 && !ends)? "\n* " : "") + "{{" + template);
+	if (tc == 1) return ("" + ((gc > 0 && !ends)? "\n* " : "") + "{{" + template);
 	return "";
 }
 
@@ -68,7 +68,7 @@ function end_funct(template, ends, tc, last) {
 	//if (tc == 0) return "}}" + ((!last && ends)? "\n* " : " ");
 	if (tc != 0) return "";
 	var ss = "}}";
-	if (ends) ss += (last? "" : "");
+	if (ends) ss += (last? "" : ", ");
 	else ss += (last? "" : " ");
 	return ss;
 }
