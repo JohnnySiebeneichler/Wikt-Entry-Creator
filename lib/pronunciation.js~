@@ -85,10 +85,12 @@ function sampa_to_ipa(s) {
 	s = s.replace(/E/g, "ɛ");
 	s = s.replace(/1/g, "ɨ");
 	s = s.replace(/O/g, "ɔ");
-	s = s.replace(/:/g, "꞉");
+	s = s.replace(/:/g, "ː");
 	s = s.replace(/V/g, "ʌ");
 	s = s.replace(/U/g, "ʊ");
 	s = s.replace(/I/g, "ɪ");
+	s = s.replace(/_h/g, "ʰ");
+	s = s.replace(/_w/g, "ʷ");
 	s = s.replace(/@`/g, "˞");
 	s = s.replace(/3`/g, "ɝ");
 	s = s.replace(/`/g, "˞");
@@ -99,6 +101,7 @@ function sampa_to_ipa(s) {
 	s = s.replace(/_d/g, "̫");
 	s = s.replace(/_^/g, "̰");
 	s = s.replace(/_a/g, "̺");
+	s = s.replace(/_s/g, "̯");
 	s = s.replace(/\'/g, "ˌ");
 	s = s.replace(/"/g, "ˈ");
 	return s;
@@ -117,10 +120,9 @@ function autopron_pt(s) {
 	
 	switch (suf1) {
 	case "r":
-		ss += " {{a|Paulista}} {{IPA|/" + sampa_to_ipa(s + "(4)") + "/|/";
-		ss += sampa_to_ipa(s + "(ɹ)") + "/|lang=pt}}\n* {{a|South Brazil}} ";
-		ss += "{{IPA|/" + sampa_to_ipa(s + "(4)") + "/|/";
-		ss += sampa_to_ipa(s + "(ɻ)") + "/";
+		ss += " {{a|Paulista}} {{IPA|/" + sampa_to_ipa(s + "(4)");
+		ss += "/|-(ɹ)|lang=pt}}\n* {{a|South Brazil}} ";
+		ss += "{{IPA|/" + sampa_to_ipa(s + "(4)") + "/|-(ɻ)";
 		return ss;
 	case "a":
 		ss += " {{a|Brazil}} {{IPA|/" + sampa_to_ipa(s + "a") + "/|/";
@@ -128,7 +130,7 @@ function autopron_pt(s) {
 		return ss;
 	case "o":
 		ss += " {{a|Brazil}} {{IPA|/" + sampa_to_ipa(s + "u");
-		ss += "/|/|lang=pt}}\n* {{a|South Brazil}} ";
+		ss += "/|lang=pt}}\n* {{a|South Brazil}} ";
 		ss += "{{IPA|/" + sampa_to_ipa(s + "o") + "/";
 		return ss;
 	}

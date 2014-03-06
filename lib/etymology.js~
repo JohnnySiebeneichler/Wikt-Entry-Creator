@@ -95,9 +95,8 @@ function write_step(state, data, first, last, previous_lang) {
 /** Makes a step in the etymology derivation chain in the form:
 from lang term (translit, “gloss”). */
 function make_derivation(data, first, last, previous_lang) {
-	var ss = "";
-	ss += (first? "F" : " f") + "rom";
-	if (previous_lang != data[0] && data[0] != l) ss += " {{etyl|" + data[0] + "|" + l + "}}";
+	var ss = from(first);
+	if (previous_lang != data[0] && data[0] != l) ss += "{{etyl|" + data[0] + "|" + l + "}}";
 	if (data[1]) {
 		if (data[0] == "la") ss += auto_latin_lemma(data);
 		else ss += maketerm(data[0], data[1], data[7], data[2], data[10]);
@@ -134,7 +133,7 @@ function unknown_ety(type, first, last) {
 
 /** Makes prefixes, suffixes and compounds. */
 function makespc(type, data, first, last) {
-	var ss = "";
+	var ss = from(first);
 	if (first) {
 		ss += "{{";
 		switch (type) {
@@ -142,8 +141,8 @@ function makespc(type, data, first, last) {
 		case ".p": ss += "prefix"; break;
 		case ".c": ss += "compound"; break;
 		}
-		ss += "|" + data[1] + "|" + data[2] + "|alt1=";
-		ss += ((data[7] == "")? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1) + (type == ".p"? "-" : "")) : data[7]);
+		ss += "|" + data[1] + "|" + data[2];
+		if (data[7] != "") ss += "|alt1=" + data[7];
 		if (data[8] != "") ss += "|alt2=" + data[8];
 		if (data[10] != "") ss += "|tr1=" + data[10];
 		if (data[11] != "") ss += "|tr2=" + data[11];
@@ -153,7 +152,7 @@ function makespc(type, data, first, last) {
 		if (get_script(data[0]) != "Latn") ss += "|sc=" + get_script(data[0] != "Latn");
 		ss += "}}"
 	} else {
-		ss += " from" + maketerm(data[0], data[1], data[7], data[3], data[10]);
+		ss += maketerm(data[0], data[1], data[7], data[3], data[10]);
 		ss += " +" + maketerm(data[0], data[2], data[8], data[4], data[11]);
 	}
 	return ss + (last? "." : ",");
@@ -161,10 +160,10 @@ function makespc(type, data, first, last) {
 
 /** Makes confix. */
 function makeconfix(type, data, first, last) {
-	var ss = "";
+	var ss = from(first);
 	if (first) {
-		ss += "{{confix|" + data[1] + "|" + data[2] + "|" + data[3] + "|alt1=";
-		ss += (data[7] == ""? (data[1].substring(0, 1).toUpperCase() + data[1].substring(1)) : data[7]);
+		ss += "{{confix|" + data[1] + "|" + data[2] + "|" + data[3];
+		if (data[7] != "") ss += "|alt1=" + data[7];
 		if (data[8] != "") ss += "|alt2=" + data[8];
 		if (data[9] != "") ss += "|alt3=" + data[9];
 		if (data[10] != "") ss += "|tr1=" + data[10];
@@ -177,9 +176,9 @@ function makeconfix(type, data, first, last) {
 		if (get_script(data[0]) != "Latn") ss += "|sc=" + get_script(data[0]);
 		ss += "}}"
 	} else {
-		ss += " "   + maketerm(data[0], data[1], data[7], data[4], data[10]);
-		ss += " + " + maketerm(data[0], data[2], data[8], data[5], data[11]);
-		ss += " + " + maketerm(data[0], data[3], data[9], data[6], data[12]);
+		ss += maketerm(data[0], data[1], data[7], data[4], data[10]);
+		ss += " +" + maketerm(data[0], data[2], data[8], data[5], data[11]);
+		ss += " +" + maketerm(data[0], data[3], data[9], data[6], data[12]);
 	}
 	return ss + (last? "." : ",");
 }
@@ -192,12 +191,10 @@ function maketerm(lang, term, alt, gloss, tr) {
 	if (!tr) tr = "";
 	
 	var ss = "";
-	ss += " {{" + term_or_recons(lang) + "|" + term;
-	if (alt != "" || gloss != "") ss += "|" + (alt == term? "" : alt);
+	ss += " {{term/t|" + lang + "|" + term;
+	if (alt != "" && alt != term || gloss != "") ss += "|"
+	ss += (alt == term? "" : alt);
 	if (gloss != "") ss += "|" + gloss;
-	ss += "|lang=" + lang;
-	if (tr != "") ss += "|tr=" + tr;
-	if (get_script(lang) != "Latn") ss += "|sc=" + get_script(lang);
 	return ss + "}}";
 }
 
@@ -266,12 +263,16 @@ function auto_latin_lemma(data) {
 	if (data[7] == "" || data[1] == data[7]) data[7] = macronise(data[1]);
 	
 	
-	var suffix5 = data[1].substring(data[1].length - 5);
+	var suffix6 = data[1].substring(data[1].length - 6);
 	var suffix4 = data[1].substring(data[1].length - 4);
 	var suffix3 = data[1].substring(data[1].length - 3);
 	var suffix2 = data[1].substring(data[1].length - 2);
 	
-	if (suffix4 == "ntem") {
+	if (suffix6 == "tionem") {
+	    lemma = data[1].substring(0, data[1].length - 3);
+		whatform = "accusative singular";
+	}
+	else if (suffix4 == "ntem") {
 		lemma = data[1].substring(0, data[1].length - 4) + "ns";
 		whatform = "accusative singular";
 	}
@@ -297,10 +298,6 @@ function auto_latin_lemma(data) {
 		lemma = data[1].substring(0, data[1].length - 3) + "ō";
 		whatform = "present active infinitive";
 	}
-	else if (suffix2 == "inem") {
-		lemma = data[1].substring(0, data[1].length - 3) + "ō";
-		whatform = "accusative singular";
-	}
 	else lemma = data[1];
 	
 	if (do_two) {
@@ -317,7 +314,9 @@ function auto_latin_lemma(data) {
 }
 
 
-
+function from(first) {
+	return (first? "F" : " f") + "rom ";
+}
 
 
 

@@ -34,6 +34,31 @@ function is_lang_code(s) {
 
 
 
+function get_lang_name(s) {
+
+	if (s == "pt") return "Portuguese";
+	if (s == "en") return "English";
+	if (s == "es") return "Spanish";
+	if (s == "rgn") return "Romagnol";
+	if (s == "egl") return "Emilian";
+	if (s == "roa-opt") return "Old Portuguese";
+	if (s == "fax") return "Fala";
+	if (s == "hrx") return "Hunsrik";
+	if (s == "lij") return "Ligurian";
+	if (s == "mhn") return "Mòcheno";
+	if (s == "kgp") return "Kaingang";
+	if (s == "cim") return "Cimbrian";
+	if (s == "lld") return "Ladin";
+	if (s == "lmo") return "Lombard";
+	if (s == "qu") return "Quechua";
+	if (s == "gl") return "Galician";
+	if (s == "ast") return "Asturian";
+	if (s == "an") return "Aragonese";
+	return "{{subst:" + s + "}}";
+}
+
+
+
 /** Returns true if the language is a Romance language whose plurals end in -s.
 */
 function is_romance_s() {
@@ -102,9 +127,10 @@ function old_language() {
 	switch (l) {
 	case "pt": 
 	case "gl":
-	case "fax": return "roa-ptg";
+	case "fax": return "roa-opt";
 	
-	case "es": return "osp";
+	case "es":
+	case "ext": return "osp";
 	
 	case "enm":
 	case "en": return "ang";

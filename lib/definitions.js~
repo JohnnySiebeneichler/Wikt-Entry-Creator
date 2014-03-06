@@ -63,11 +63,11 @@ function make_def_element(state, prev_state, data) {
 
 
 function make_context(data) {
-	var ss = " {{context|";
+	var ss = " {{label|" + l
 	for (var c1 = 0; c1 < data.length; c1++) {
-		ss += clean_word(data[c1]) + "|";
+		ss += "|" clean_word(data[c1]);
 	}
-	return ss + "lang=" + l + "}}";
+	return ss + "}}";
 }
 
 function make_ngdef(data) {
@@ -130,12 +130,19 @@ function make_gloss(data) {
 		ss += (!first? " " : "");
 		if (data[c1] == ".") {
 			if (c1 < data.length -1) {
-				ss += "''{{l|mul|" + data[c1+1] + "}}''";
+				ss += "''{{l|mul|" + clean_word(data[c1+1]) + "}}''";
+				c1++;
+			}
+		}
+		else if (data[c1] == "..") {
+			if (c1 < data.length -1) {
+				ss += "''{{taxlink|" + clean_word(data[c1+1]) + "|species}}''";
 				c1++;
 			}
 		}
 		else {
-			ss += data[c1];
+			
+			ss += (c1 == 0)? data[c1].toLowerCase() : data[c1];
 			first = false;
 		}
 	}
@@ -211,6 +218,10 @@ function wikify(s) {
 	}
 	else if (suf2 == "ss") {
 			main = main;
+	}
+	else if (suf2 == "’s") {
+			main = main.substring(0, main.length-2);
+			pmark2 = "’s" + pmark2;
 	}
 	else if (suf1 == "s") main = main.substring(0, main.length-1) + "|" + main;
 	

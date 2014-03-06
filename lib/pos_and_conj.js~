@@ -128,6 +128,13 @@ function get_head_function() {
 		case "n": return "lij-noun";
 		}
 		break;
+	case "idb": switch (pos) {
+		case "n": return "idb-noun";
+		}
+	case "mcm": switch (pos) {
+		case "n": return "mcm-noun";
+		}
+		break;
 	case "en": switch (pos) {
 		case "n": return "en-noun";
 		case "a": return "en-adj";
@@ -178,11 +185,10 @@ function get_conj_parameters() {
 
 /** Makes the head= parameter if there are spaces or hyphens in the word. */
 function make_head_alt() {
-	var type = has_efficient_l(l)? "/" : "|";
-	var head = w.replace(/\s/g, ("}} {{l"+type+l+"|"));
-	head = head.replace(/-/g, ("}}-{{l"+type+l+"|"));
+	var head = w.replace(/\s/g, ("]] [[));
+	head = head.replace(/-/g, ("]]-[["));
 	if (head == w) return "";
-	return "|head={{l" + type + l + "|" + head + "}}";
+	return "|head=[[" + head + "]]";
 }
 
 function get_romance_gender() {
